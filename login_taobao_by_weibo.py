@@ -15,7 +15,7 @@ class taobao_infos:
         options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})  # 不加载图片,加快访问速度
         options.add_experimental_option('excludeSwitches',
                                         ['enable-automation'])  # 此步骤很重要，设置为开发者模式，防止被各大网站识别出来使用了Selenium
-        self.browser = webdriver.Chrome(executable_path=chromedriver_path, options=options)
+        self.browser = webdriver.Chrome(executable_path='chromedriver.exe', options=options)
         self.wait = WebDriverWait(self.browser, 5)  # 超时时长为10s
 
     # 登录淘宝
@@ -23,6 +23,13 @@ class taobao_infos:
         # 打开网页
         self.browser.get(self.url)
         # 等待 密码登录选项 出现
+        #(By.CSS_SELECTOR, '.qrcode-login > .login-links > .forget-pwd') 是locator，元组形式，定位元素用的
+        #until 意思是直到xx出现就继续运行，until_not相反。
+        # 还有 EC.presence_of_all_elements_located等待所有元素加载完毕才通过
+        # '.'意思是class，'#'意思是id，如果class名有空格，就需要额外用引号括起来。 >是直接子节点的意思，如果不加>加空格，则是所有子节点里
+        # 这些都是在网站上右键检查看到的。
+        # '.'后面内容不加引号，class的value中间有空格代表有两个class，所以.X1.X2这么去搜索
+        # print(self.browser.find_element_by_css_selector("div[class='login-blocks']").text)
         password_login = self.wait.until(
             EC.presence_of_element_located((By.CSS_SELECTOR, ".login-blocks.login-switch-tab > .password-login-tab-item")))
         password_login.click()
@@ -52,8 +59,15 @@ class taobao_infos:
         print(taobao_name.text)
 
 
+# 使用教程：
+# 1.下载chrome浏览器:https://www.google.com/chrome/
+# 2.查看chrome浏览器的版本号，下载对应版本号的chromedriver驱动:http://chromedriver.storage.googleapis.com/index.html
+# 3.填写chromedriver的绝对路径
+# 4.执行命令pip install selenium
+# 5.打开https://account.weibo.com/set/bindsns/bindtaobao并通过微博绑定淘宝账号密码
+
 if __name__ == "__main__":
-    chromedriver_path = 'chromedriver.exe'  # 改成你的chromedriver的完整路径地址
+    chromedriver_path = "/Users/bird/Desktop/chromedriver.exe"  # 改成你的chromedriver的完整路径地址
     weibo_username = "472192957@qq.com"  # 改成你的微博账号
     weibo_password = ""  # 改成你的微博密码
 
