@@ -45,27 +45,40 @@ class zjedu_info:
             print("Different， 登录失败")
 
         #报名学习 师德教育专题学习，并跳转到新页面
-        #文本定位 用 css还不知道怎么弄， 用xpath   可以这样 //*[contains(text(），'后台审核')] 不行！
+        #文本定位 用 css还不知道怎么弄， 用xpath   可以这样 //*[contains(text(），'后台审核')] 经试验不行！
         # shide = self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR,
-        #                                                               'p[title=师德教育专题学习')))
-        shide = self.wait.until(EC.presence_of_element_located((By.XPATH,
-                                                                "//p[text()='师德教育专题学习']")))
-        print(shide.text)
-        baoming = self.browser.find_element_by_xpath("//p[text()='师德教育专题学习']/following-sibling::button[1]")
+        #                                                               'p[title=师德教育专题学习'))) 这个可以
+        # shide = self.wait.until(EC.presence_of_element_located((By.XPATH,
+        #                                                         "//p[text()='师德教育专题学习']")))  这个可以
+        # print(shide.text)
+        baoming = self.wait.until(EC.presence_of_element_located((By.XPATH,"//p[text()='师德教育专题学习']/following-sibling::button[1]")))
         print(baoming.text)
+        old_window = self.browser.current_window_handle  # 定位当前页面句柄
         baoming.click()
 
-        windows = self.browser.current_window_handle  # 定位当前页面句柄
+        ## 进入新页面
+        # sleep(3)  没有显性等待的方法就只能用sleep的等待方法了
+        # all_handles = self.browser.window_handles  # 获取全部页面句柄
+        self.wait.until(EC.number_of_windows_to_be(2))
         all_handles = self.browser.window_handles  # 获取全部页面句柄
-        for handle in all_handles:  # 遍历全部页面句柄
-            if handle != windows:  # 判断条件
-                self.browser.switch_to.window(handle)  # 切换到新页面
-        baoming = self.browser.find_element_by_xpath("//p[text()='师德教育专题学习']/following-sibling::button[1]")
-        print(baoming.text)
-        youeryuan = self.wait.until(EC.presence_of_element_located((By.XPATH,
-                                                                      '//div[@class="main_list"]')))
-        print(youeryuan.text)
+        print(len(all_handles))
+        new_window = [window for window in all_handles if window != old_window][0]
+        # 或直接 new_window = all_handles[1]
+        self.browser.switch_to.window(new_window)  # 切换到新页面
 
+        ## 点击幼儿园的进入学习
+        main_list = self.wait.until(EC.presence_of_element_located((By.XPATH,
+                                                                      '//div[@class="main_list"]')))
+        print("main_list text:", main_list.text)
+        baomingxuexi = self.browser.find_elements_by_link_text("进入学习")
+        for i in baomingxuexi:
+            print("a.text:",i.text)
+            print("a previous text",i.find_element_by_xpath("preceding-sibling::span[1]").text)
+        baomingxuexi[1].click()
+
+        ##
+        max_position = self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".max-position"))).text
+        print(max_position)
 
 if __name__ == "__main__":
     chromedriver_path = 'chromedriver.exe'  # 改成你的chromedriver的完整路径地址

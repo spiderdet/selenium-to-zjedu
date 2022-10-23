@@ -133,4 +133,6 @@ dmypy.json
 
 #data
 
+*.exe
+.idea/
 
